@@ -1,0 +1,142 @@
+[
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-xhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_bg_important_dot.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\bg_important_dot.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_activity_compose.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_compose.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\menu_menu_thread.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\menu\\menu_thread.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_launcher_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\menu_menu_main.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\menu\\menu_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_activity_message_thread.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_message_thread.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-hdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_bg_bubble_outgoing.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\bg_bubble_outgoing.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_item_conversation.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\item_conversation.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-xxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_activity_conversation_list.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_conversation_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_bg_badge.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\bg_badge.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_person.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_person.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_item_message_outgoing.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\item_message_outgoing.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_compose.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_compose.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\xml_network_security_config.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\xml\\network_security_config.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_bg_avatar.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\bg_avatar.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-xxxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_sms.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_sms.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_bg_bubble_incoming.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\bg_bubble_incoming.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-mdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_search.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_search.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-xhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_activity_settings.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_settings.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\drawable_ic_send.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\drawable\\ic_send.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\layout_item_message_incoming.xml.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\item_message_incoming.xml"
+    },
+    {
+        "merged": "com.personal.smsapp-debug-47:/layout_activity_compose.xml.flat",
+        "source": "com.personal.smsapp-main-49:/layout/activity_compose.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-mdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-hdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-debug-47:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+    }
+]

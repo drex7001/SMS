@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dark-theme variant. Must repeat all colour overrides so that the empty
+    night style does not shadow the day style's attributes.
+-->
+<resources>
+    <style name="Theme.SMSApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Indigo brand — night variant (lighter tones for dark surfaces) -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorPrimaryContainer">@color/color_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/color_on_primary_container</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/color_secondary_container</item>
+        <item name="dialogCornerRadius">20dp</item>
+    </style>
+</resources>

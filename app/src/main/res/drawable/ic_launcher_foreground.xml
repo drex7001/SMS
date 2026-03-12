@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Speech bubble body with tail at bottom-left -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,14 H78 Q90,14 90,26 V66 Q90,78 78,78 H40 L20,94 L34,78 H30 Q18,78 18,66 V26 Q18,14 30,14 Z"/>
+    <!-- Text line 1 (pill shape) -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M32.5,28 H75.5 Q81,28 81,33.5 Q81,39 75.5,39 H32.5 Q27,39 27,33.5 Q27,28 32.5,28 Z"/>
+    <!-- Text line 2 (pill shape) -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M32.5,44 H75.5 Q81,44 81,49.5 Q81,55 75.5,55 H32.5 Q27,55 27,49.5 Q27,44 32.5,44 Z"/>
+    <!-- Text line 3 shorter (pill shape) -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M32.5,60 H55.5 Q61,60 61,65.5 Q61,71 55.5,71 H32.5 Q27,71 27,65.5 Q27,60 32.5,60 Z"/>
+</vector>

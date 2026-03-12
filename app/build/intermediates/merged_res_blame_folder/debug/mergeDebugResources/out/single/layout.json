@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\item_conversation.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\item_conversation.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\activity_compose.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_compose.xml"
+    },
+    {
+        "merged": "com.personal.smsapp-mergeDebugResources-46:/layout/activity_compose.xml",
+        "source": "com.personal.smsapp-main-49:/layout/activity_compose.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\activity_conversation_list.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_conversation_list.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\activity_message_thread.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_message_thread.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\activity_settings.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\activity_settings.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\item_message_outgoing.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\item_message_outgoing.xml"
+    },
+    {
+        "merged": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-mergeDebugResources-46:\\layout\\item_message_incoming.xml",
+        "source": "C:\\Users\\Ayodhya\\.gradle\\daemon\\8.7\\com.personal.smsapp-main-49:\\layout\\item_message_incoming.xml"
+    }
+]

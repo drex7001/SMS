@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand palette -->
+    <color name="color_primary">#5C6BC0</color>
+    <color name="color_on_primary">#FFFFFF</color>
+    <color name="color_primary_container">#E8EAF6</color>
+    <color name="color_on_primary_container">#1A1560</color>
+    <color name="color_secondary">#9575CD</color>
+    <color name="color_on_secondary">#FFFFFF</color>
+    <color name="color_secondary_container">#EDE7F6</color>
+
+    <!-- Chat bubbles -->
+    <color name="bubble_incoming">#F3E5F5</color>
+    <color name="bubble_outgoing">#5C6BC0</color>
+
+    <!-- Indicators -->
+    <color name="badge_background">#EF5350</color>
+    <color name="important_color">#EF5350</color>
+
+    <!-- Avatar placeholder (overridden per-contact in code) -->
+    <color name="avatar_background">#7E57C2</color>
+    <color name="avatar_text">#FFFFFF</color>
+</resources>

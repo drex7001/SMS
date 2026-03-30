@@ -58,6 +58,19 @@ public class Prefs {
         get(ctx).edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
     }
 
+    // KEY_FIRST_LAUNCH doubles as the "initial sync done" flag in SMSApplication,
+    // but ConversationListActivity tracks sync completion separately so it can
+    // trigger the sync after permissions + default-app role are both confirmed.
+    private static final String KEY_INITIAL_SYNC_DONE = "initial_sync_done";
+
+    public static boolean isInitialSyncDone(Context ctx) {
+        return get(ctx).getBoolean(KEY_INITIAL_SYNC_DONE, false);
+    }
+
+    public static void setInitialSyncDone(Context ctx) {
+        get(ctx).edit().putBoolean(KEY_INITIAL_SYNC_DONE, true).apply();
+    }
+
     public static boolean areNotificationsEnabled(Context ctx) {
         return get(ctx).getBoolean(KEY_NOTIFICATION, true);
     }

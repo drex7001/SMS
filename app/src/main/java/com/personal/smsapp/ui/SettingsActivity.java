@@ -1,8 +1,6 @@
 package com.personal.smsapp.ui;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,17 +39,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setupSaveButton() {
         binding.btnSave.setOnClickListener(v -> {
-            String url = binding.etApiUrl.getText().toString().trim();
-            String key = binding.etApiKey.getText().toString().trim();
+            String  url               = binding.etApiUrl.getText().toString().trim();
+            String  key               = binding.etApiKey.getText().toString().trim();
+            boolean apiEnabled        = binding.switchApiEnabled.isChecked();
+            boolean notificationsOn   = binding.switchNotifications.isChecked();
 
-            Prefs.setApiUrl(this, url);
-            Prefs.setApiKey(this, key);
-
-            getSharedPreferences("_", MODE_PRIVATE).edit()
-                .putBoolean(Prefs.KEY_API_ENABLED,  binding.switchApiEnabled.isChecked())
-                .putBoolean(Prefs.KEY_NOTIFICATION, binding.switchNotifications.isChecked())
-                .apply();
-
+            Prefs.saveAll(this, url, key, apiEnabled, notificationsOn);
             Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show();
         });
     }

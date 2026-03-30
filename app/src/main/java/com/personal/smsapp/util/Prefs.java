@@ -2,21 +2,28 @@ package com.personal.smsapp.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.preference.PreferenceManager;
 
+/**
+ * SharedPreferences wrapper for app settings.
+ *
+ * Uses Context.getSharedPreferences directly — no androidx.preference dependency needed.
+ * The androidx.preference library is only required if you use PreferenceFragmentCompat
+ * (XML-driven settings screens). Since we have a manual SettingsActivity with regular
+ * views, the platform SharedPreferences API is all we need.
+ */
 public class Prefs {
 
-    public static final String KEY_API_URL           = "api_url";
-    public static final String KEY_API_KEY           = "api_key";
-    public static final String KEY_API_ENABLED       = "api_enabled";
-    public static final String KEY_NOTIFICATION      = "notifications_enabled";
-    public static final String KEY_FIRST_LAUNCH      = "first_launch";
-    public static final String KEY_FONT_SIZE         = "font_size";
-    /** Set to true once we have done the one-time system-SMS import */
-    public static final String KEY_INITIAL_SYNC_DONE = "initial_sync_done";
+    private static final String PREFS_NAME = "smsapp_prefs";
+
+    public static final String KEY_API_URL      = "api_url";
+    public static final String KEY_API_KEY      = "api_key";
+    public static final String KEY_API_ENABLED  = "api_enabled";
+    public static final String KEY_NOTIFICATION = "notifications_enabled";
+    public static final String KEY_FIRST_LAUNCH = "first_launch";
+    public static final String KEY_FONT_SIZE    = "font_size";
 
     private static SharedPreferences get(Context ctx) {
-        return PreferenceManager.getDefaultSharedPreferences(ctx);
+        return ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 
     public static String getApiUrl(Context ctx) {
@@ -39,6 +46,10 @@ public class Prefs {
         return get(ctx).getBoolean(KEY_API_ENABLED, false);
     }
 
+    public static void setApiEnabled(Context ctx, boolean enabled) {
+        get(ctx).edit().putBoolean(KEY_API_ENABLED, enabled).apply();
+    }
+
     public static boolean isFirstLaunch(Context ctx) {
         return get(ctx).getBoolean(KEY_FIRST_LAUNCH, true);
     }
@@ -51,15 +62,22 @@ public class Prefs {
         return get(ctx).getBoolean(KEY_NOTIFICATION, true);
     }
 
+    public static void setNotificationsEnabled(Context ctx, boolean enabled) {
+        get(ctx).edit().putBoolean(KEY_NOTIFICATION, enabled).apply();
+    }
+
     public static int getFontSize(Context ctx) {
-        return get(ctx).getInt(KEY_FONT_SIZE, 16); // sp
+        return get(ctx).getInt(KEY_FONT_SIZE, 16);
     }
 
-    public static boolean isInitialSyncDone(Context ctx) {
-        return get(ctx).getBoolean(KEY_INITIAL_SYNC_DONE, false);
-    }
-
-    public static void setInitialSyncDone(Context ctx) {
-        get(ctx).edit().putBoolean(KEY_INITIAL_SYNC_DONE, true).apply();
+    /** Save all settings at once — called by SettingsActivity on Save button */
+    public static void saveAll(Context ctx, String apiUrl, String apiKey,
+                               boolean apiEnabled, boolean notificationsEnabled) {
+        get(ctx).edit()
+            .putString(KEY_API_URL,      apiUrl)
+            .putString(KEY_API_KEY,      apiKey)
+            .putBoolean(KEY_API_ENABLED,  apiEnabled)
+            .putBoolean(KEY_NOTIFICATION, notificationsEnabled)
+            .apply();
     }
 }

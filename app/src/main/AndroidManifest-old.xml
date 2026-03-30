@@ -5,11 +5,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-    <!--
-        WRITE_SMS removed: it is a protected permission (signatureOrSystem) since API 19.
-        Third-party apps are never granted it. Writing to the SMS store is handled
-        automatically by the system when this app holds the default SMS role.
-    -->
+    <uses-permission android:name="android.permission.WRITE_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_MMS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
@@ -26,17 +22,9 @@
     <!-- Vibration for notifications -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!--
-        BROADCAST_WAP_PUSH and SEND_RESPOND_VIA_MESSAGE are NOT declared here.
-
-        These are signature-level protected permissions — only the system can hold them.
-        Declaring them in <uses-permission> causes a lint ProtectedPermissions error
-        and they would never be granted at runtime anyway.
-
-        The correct usage (already below) is as android:permission on the receiver/service,
-        which restricts who is ALLOWED TO SEND intents to those components (system only).
-        That is a completely different concept from the app requesting the permission.
-    -->
+    <!-- Required to be default SMS app -->
+    <uses-permission android:name="android.permission.BROADCAST_WAP_PUSH" />
+    <uses-permission android:name="android.permission.SEND_RESPOND_VIA_MESSAGE" />
 
     <application
         android:allowBackup="true"
@@ -45,13 +33,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SMSApp"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:name=".SMSApplication">
 
         <!-- ══════════════════════════════════════════ -->
         <!-- Activities                                  -->
         <!-- ══════════════════════════════════════════ -->
 
+        <!-- Main conversation list - also the SEND intent handler (required for default SMS app) -->
         <activity
             android:name=".ui.ConversationListActivity"
             android:exported="true"
@@ -61,11 +49,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- Required for default SMS app: handle plain-text shares -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <data android:mimeType="text/plain" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- Handle image shares -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <data android:mimeType="image/*" />
@@ -73,15 +63,18 @@
             </intent-filter>
         </activity>
 
+        <!-- Thread / message view -->
         <activity
             android:name=".ui.MessageThreadActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
+        <!-- New message / compose -->
         <activity
             android:name=".ui.ComposeActivity"
             android:exported="true"
             android:windowSoftInputMode="stateVisible|adjustResize">
+            <!-- Required for default SMS app: handle SENDTO intents -->
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
                 <data android:scheme="sms" />
@@ -92,6 +85,7 @@
             </intent-filter>
         </activity>
 
+        <!-- Settings -->
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false" />
@@ -100,11 +94,7 @@
         <!-- Receivers                                   -->
         <!-- ══════════════════════════════════════════ -->
 
-        <!--
-            android:permission here means: only callers holding BROADCAST_SMS
-            (i.e. the system) may send SMS_DELIVER to this receiver.
-            This is protective, not a claim that our app holds the permission.
-        -->
+        <!-- Incoming SMS receiver -->
         <receiver
             android:name=".receiver.SmsReceiver"
             android:exported="true"
@@ -114,10 +104,7 @@
             </intent-filter>
         </receiver>
 
-        <!--
-            Same pattern: android:permission restricts senders to system only.
-            We do NOT hold BROADCAST_WAP_PUSH — the system does when it sends to us.
-        -->
+        <!-- MMS receiver (required for default SMS app) -->
         <receiver
             android:name=".receiver.MmsReceiver"
             android:exported="true"
@@ -132,14 +119,15 @@
         <!-- Services                                    -->
         <!-- ══════════════════════════════════════════ -->
 
+        <!-- HeadsUp helper (no intent-filter needed) -->
         <service
             android:name=".ui.HeadsUpService"
             android:exported="false" />
 
         <!--
-            Required for default SMS role eligibility.
-            android:permission restricts callers to those holding SEND_RESPOND_VIA_MESSAGE
-            (the system), not a claim that we hold it.
+            REQUIRED for default SMS app eligibility.
+            Android checks that a Service handling RESPOND_VIA_MESSAGE exists
+            before granting the default SMS role.
         -->
         <service
             android:name=".service.RespondViaMessageService"
@@ -159,6 +147,7 @@
         <!-- Providers                                   -->
         <!-- ══════════════════════════════════════════ -->
 
+        <!-- WorkManager initializer -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

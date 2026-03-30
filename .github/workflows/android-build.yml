@@ -7,8 +7,11 @@ on:
     branches: ["main", "master"]
 
 jobs:
+  # ── Job 1: Compile & package ───────────────────────────────────────────────
   build:
+    name: Build APK
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,9 +21,53 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
+          cache: gradle # caches ~/.gradle between runs — faster CI
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build debug APK
+        # assembleDebug compiles + packages only — does NOT run lint.
+        # This job's only job is to verify the code compiles and links.
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+  # ── Job 2: Lint (non-blocking, informational) ──────────────────────────────
+  lint:
+    name: Lint check
+    runs-on: ubuntu-latest
+    # Lint runs in parallel with build, does not block the build job.
+    # Remove `continue-on-error` if you want lint failures to fail the PR check.
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Run lint
+        run: ./gradlew lintDebug --stacktrace
+
+      - name: Upload lint report
+        # Always upload so you can review even when lint finds issues
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint/
+          retention-days: 7

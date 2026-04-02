@@ -243,7 +243,8 @@ Version code and name are injected via Gradle properties:
     "message_id": 42,
     "sender": "+1234567890",
     "body": "Your OTP is 9876",
-    "timestamp": 1710000000000
+    "timestamp": 1710000000000,
+    "tag": "optional pre-filter tag"
 }
 ```
 

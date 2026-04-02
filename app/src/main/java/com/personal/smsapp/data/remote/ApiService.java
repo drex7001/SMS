@@ -51,13 +51,16 @@ public class ApiService {
             .build();
     }
 
-    public ApiResponse forwardMessage(long messageId, String sender, String body, long timestamp) {
+    public ApiResponse forwardMessage(long messageId, String sender, String body, long timestamp, String localTag) {
         try {
             JSONObject payload = new JSONObject();
             payload.put("message_id", messageId);
             payload.put("sender", sender);
             payload.put("body", body);
             payload.put("timestamp", timestamp);
+            if (localTag != null && !localTag.isEmpty()) {
+                payload.put("suggested_tag", localTag);
+            }
 
             RequestBody requestBody = RequestBody.create(payload.toString(), JSON);
 

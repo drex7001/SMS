@@ -75,7 +75,7 @@ public class ApiSyncWorker extends Worker {
 
                 // ── Forward to API ─────────────────────────────────────────
                 ApiService.ApiResponse response = api.forwardMessage(
-                    msg.id, msg.address, msg.body, msg.date
+                    msg.id, msg.address, msg.body, msg.date, local.tag
                 );
                 repo.applyApiResult(
                     msg.id,

@@ -2,6 +2,7 @@ package com.personal.smsapp.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -106,6 +107,12 @@ public class FilterSettingsActivity extends AppCompatActivity {
             .setPositiveButton("Delete", (d, w) -> viewModel.delete(f))
             .setNegativeButton("Cancel", null)
             .show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_filter_settings, menu);
+        return true;
     }
 
     @Override

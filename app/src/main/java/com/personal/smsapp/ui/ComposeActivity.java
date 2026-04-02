@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 
 import com.personal.smsapp.databinding.ActivityComposeBinding;
 import com.personal.smsapp.data.local.SmsRepository;
@@ -59,6 +60,7 @@ public class ComposeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         binding = ActivityComposeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
@@ -228,7 +230,7 @@ public class ComposeActivity extends AppCompatActivity {
         }
 
         try {
-            SmsManager sms   = SmsManager.getDefault();
+            SmsManager sms   = getSystemService(SmsManager.class);
             ArrayList<String> parts = sms.divideMessage(body);
             sms.sendMultipartTextMessage(recipient, null, parts, null, null);
 
@@ -262,7 +264,7 @@ public class ComposeActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        getOnBackPressedDispatcher().onBackPressed();
         return true;
     }
 

@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -38,6 +41,7 @@ public class MessageThreadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         binding   = ActivityMessageThreadBinding.inflate(getLayoutInflater());
         viewModel = new ViewModelProvider(this).get(MessageThreadViewModel.class);
         setContentView(binding.getRoot());
@@ -56,6 +60,7 @@ public class MessageThreadActivity extends AppCompatActivity {
         setupRecyclerView();
         setupSendButton();
         observeMessages();
+        setupEdgeToEdge();
 
         // Mark thread as read when opened
         if (threadId > 0) {
@@ -96,7 +101,7 @@ public class MessageThreadActivity extends AppCompatActivity {
         binding.btnSend.setEnabled(false);
 
         try {
-            SmsManager smsManager = SmsManager.getDefault();
+            SmsManager smsManager = getSystemService(SmsManager.class);
             ArrayList<String> parts = smsManager.divideMessage(text);
 
             // Build sent/delivered intents
@@ -128,6 +133,24 @@ public class MessageThreadActivity extends AppCompatActivity {
         });
     }
 
+    private void setupEdgeToEdge() {
+        // Extend input bar behind nav bar and add matching bottom padding
+        ViewCompat.setOnApplyWindowInsetsListener(binding.inputBar, (v, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            int padV = Math.round(10 * v.getResources().getDisplayMetrics().density);
+            v.setPadding(v.getPaddingLeft(), padV, v.getPaddingRight(), padV + navBottom);
+            return insets;
+        });
+        // Keep message list clear of the taller input bar + nav bar
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerMessages, (v, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            int px88 = Math.round(88 * v.getResources().getDisplayMetrics().density);
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
+                    px88 + navBottom);
+            return insets;
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_thread, menu);
@@ -138,7 +161,7 @@ public class MessageThreadActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
             return true;
         }
         if (id == R.id.action_delete_thread) {

@@ -9,11 +9,15 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -45,6 +49,7 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         binding   = ActivityConversationListBinding.inflate(getLayoutInflater());
         viewModel = new ViewModelProvider(this).get(ConversationListViewModel.class);
         setContentView(binding.getRoot());
@@ -54,6 +59,7 @@ public class ConversationListActivity extends AppCompatActivity {
         setupSearch();
         setupFab();
         observeData();
+        setupEdgeToEdge();
         checkPermissions();
     }
 
@@ -157,6 +163,24 @@ public class ConversationListActivity extends AppCompatActivity {
                 .setNegativeButton("Not now", null)
                 .show();
         }
+    }
+
+    private void setupEdgeToEdge() {
+        int margin20 = Math.round(20 * getResources().getDisplayMetrics().density);
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, (v, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), navBottom);
+            return insets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(binding.fabCompose, (v, insets) -> {
+            int navBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            ViewGroup.MarginLayoutParams lp =
+                    (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            lp.bottomMargin = margin20 + navBottom;
+            lp.rightMargin  = margin20;
+            v.requestLayout();
+            return insets;
+        });
     }
 
     @Override

@@ -3,6 +3,12 @@ package com.personal.smsapp.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 /**
  * SharedPreferences wrapper for app settings.
  *
@@ -13,7 +19,9 @@ import android.content.SharedPreferences;
  */
 public class Prefs {
 
-    private static final String PREFS_NAME = "smsapp_prefs";
+    // New name avoids colliding with any pre-existing unencrypted "smsapp_prefs" file.
+    // On first launch after upgrade, settings reset to defaults — this is intentional.
+    private static final String PREFS_NAME = "smsapp_prefs_enc";
 
     public static final String KEY_API_URL      = "api_url";
     public static final String KEY_API_KEY      = "api_key";
@@ -22,8 +30,31 @@ public class Prefs {
     public static final String KEY_FIRST_LAUNCH = "first_launch";
     public static final String KEY_FONT_SIZE    = "font_size";
 
+    private static volatile SharedPreferences instance;
+
     private static SharedPreferences get(Context ctx) {
-        return ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (instance == null) {
+            synchronized (Prefs.class) {
+                if (instance == null) {
+                    try {
+                        MasterKey masterKey = new MasterKey.Builder(ctx.getApplicationContext())
+                                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                                .build();
+                        instance = EncryptedSharedPreferences.create(
+                                ctx.getApplicationContext(),
+                                PREFS_NAME,
+                                masterKey,
+                                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                        );
+                    } catch (GeneralSecurityException | IOException e) {
+                        throw new RuntimeException(
+                                "Failed to initialize encrypted preferences", e);
+                    }
+                }
+            }
+        }
+        return instance;
     }
 
     public static String getApiUrl(Context ctx) {

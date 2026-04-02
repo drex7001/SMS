@@ -49,7 +49,7 @@ public class RespondViaMessageService extends Service {
 
     private void sendSms(String number, String message) {
         try {
-            SmsManager smsManager = SmsManager.getDefault();
+            SmsManager smsManager = getSystemService(SmsManager.class);
             ArrayList<String> parts = smsManager.divideMessage(message);
             smsManager.sendMultipartTextMessage(number, null, parts, null, null);
             Log.d(TAG, "Quick reply sent to " + number);

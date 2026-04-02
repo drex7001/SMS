@@ -28,36 +28,49 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Restore debug keystore
+      - name: Restore release keystore
         # Decodes the keystore stored as a base64 GitHub secret so CI signs
         # with the same certificate as your local machine — required for
         # Android to accept the APK as an update to an already-installed app.
+        env:
+          KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
         run: |
-          mkdir -p "$HOME/.android"
-          echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > "$HOME/.android/debug.keystore"
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "ERROR: RELEASE_KEYSTORE_B64 secret is not set." >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP"
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          keytool -list \
+            -keystore "$RUNNER_TEMP/release.keystore" \
+            -storepass "${{ secrets.RELEASE_STORE_PASSWORD }}" \
+            -noprompt \
+            || { echo "ERROR: Decoded keystore is invalid." >&2; exit 1; }
 
-      - name: Build debug APK
-        # assembleDebug compiles + packages only — does NOT run lint.
-        # This job's only job is to verify the code compiles and links.
-        # versionCode is set to the monotonically-increasing run number so the
-        # app can compare it against the latest GitHub Release.
-        run: ./gradlew assembleDebug --stacktrace -PversionCode=${{ github.run_number }} -PversionName="1.0.${{ github.run_number }}"
+      - name: Build release APK
+        run: |
+          ./gradlew assembleRelease --stacktrace \
+            -PversionCode=${{ github.run_number }} \
+            -PversionName="1.0.${{ github.run_number }}" \
+            -PreleaseStoreFile="$RUNNER_TEMP/release.keystore" \
+            -PreleaseStorePassword="${{ secrets.RELEASE_STORE_PASSWORD }}" \
+            -PreleaseKeyAlias="${{ secrets.RELEASE_KEY_ALIAS }}" \
+            -PreleaseKeyPassword="${{ secrets.RELEASE_KEY_PASSWORD }}"
 
-      - name: Upload debug APK
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
           retention-days: 7
 
       - name: Create GitHub Release
-        # Only publish a release on direct pushes (not on PRs).
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
           name: "Build ${{ github.run_number }}"
-          files: app/build/outputs/apk/debug/*.apk
+          files: app/build/outputs/apk/release/*.apk
 
   # ── Job 2: Lint (non-blocking, informational) ──────────────────────────────
   lint:

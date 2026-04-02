@@ -14,10 +14,22 @@ android {
         versionName project.hasProperty('versionName') ? project.versionName : "1.0"
     }
 
+    signingConfigs {
+        if (project.hasProperty('releaseStoreFile')) {
+            release {
+                storeFile     file(project.releaseStoreFile)
+                storePassword project.releaseStorePassword
+                keyAlias      project.releaseKeyAlias
+                keyPassword   project.releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig project.hasProperty('releaseStoreFile') ? signingConfigs.release : signingConfigs.debug
         }
         debug {
             applicationIdSuffix ".debug"

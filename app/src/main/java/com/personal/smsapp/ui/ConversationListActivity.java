@@ -22,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.personal.smsapp.R;
@@ -59,6 +60,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
         setupRecyclerView();
         setupSearch();
+        setupChips();
         setupFab();
         observeData();
         setupEdgeToEdge();
@@ -116,6 +118,41 @@ public class ConversationListActivity extends AppCompatActivity {
             binding.emptyState.setVisibility(
                 (conversations == null || conversations.isEmpty()) ? View.VISIBLE : View.GONE);
         });
+        // Add a chip for each distinct tag returned from DB
+        viewModel.getDistinctTags().observe(this, this::addTagChips);
+    }
+
+    private void setupChips() {
+        binding.chipAll.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked) viewModel.setFilter(ConversationListViewModel.FilterType.ALL, null);
+        });
+        binding.chipUnread.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked) viewModel.setFilter(ConversationListViewModel.FilterType.UNREAD, null);
+        });
+        binding.chipPending.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked) viewModel.setFilter(ConversationListViewModel.FilterType.PENDING, null);
+        });
+    }
+
+    private void addTagChips(java.util.List<String> tags) {
+        // Remove previously added dynamic tag chips (keep first 3 static chips)
+        while (binding.chipGroupFilter.getChildCount() > 3) {
+            binding.chipGroupFilter.removeViewAt(3);
+        }
+        if (tags == null) return;
+        for (String tag : tags) {
+            Chip chip = new Chip(this);
+            chip.setText(tag);
+            chip.setCheckable(true);
+            chip.setChecked(false);
+            android.widget.CompoundButton.OnCheckedChangeListener l =
+                (btn, checked) -> {
+                    if (checked) viewModel.setFilter(
+                        ConversationListViewModel.FilterType.TAG, tag);
+                };
+            chip.setOnCheckedChangeListener(l);
+            binding.chipGroupFilter.addView(chip);
+        }
     }
 
     @Override

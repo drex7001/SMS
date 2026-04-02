@@ -31,6 +31,7 @@ public class SmsRepository {
     private final AppDatabase     db;
     private final MessageDao      messageDao;
     private final ConversationDao conversationDao;
+    private final LocalFilterDao  localFilterDao;
     private final ContentResolver resolver;
     private final ExecutorService ioExecutor;
 
@@ -52,6 +53,7 @@ public class SmsRepository {
         db              = AppDatabase.getInstance(context);
         messageDao      = db.messageDao();
         conversationDao = db.conversationDao();
+        localFilterDao  = db.localFilterDao();
         resolver        = context.getContentResolver();
         ioExecutor      = Executors.newFixedThreadPool(2);
     }
@@ -64,6 +66,55 @@ public class SmsRepository {
 
     public LiveData<List<Conversation>> searchConversations(String query) {
         return conversationDao.search(query);
+    }
+
+    public LiveData<List<Conversation>> getUnreadConversations() {
+        return conversationDao.getUnread();
+    }
+
+    public LiveData<List<Conversation>> getPendingSyncConversations() {
+        return conversationDao.getPendingSync();
+    }
+
+    public LiveData<List<Conversation>> getConversationsByTag(String tag) {
+        return conversationDao.getByTag(tag);
+    }
+
+    public LiveData<List<String>> getDistinctTags() {
+        return conversationDao.getDistinctTags();
+    }
+
+    // ── LocalFilter CRUD ───────────────────────────────────────────────────
+
+    public LiveData<List<LocalFilter>> getFilters() {
+        return localFilterDao.getAll();
+    }
+
+    public List<LocalFilter> getEnabledFiltersSync() {
+        return localFilterDao.getAllEnabledSync();
+    }
+
+    public void saveFilter(LocalFilter filter) {
+        ioExecutor.execute(() -> localFilterDao.insert(filter));
+    }
+
+    public void updateFilter(LocalFilter filter) {
+        ioExecutor.execute(() -> localFilterDao.update(filter));
+    }
+
+    public void deleteFilter(LocalFilter filter) {
+        ioExecutor.execute(() -> localFilterDao.delete(filter));
+    }
+
+    public void replaceAllFilters(List<LocalFilter> filters, Runnable onDone) {
+        ioExecutor.execute(() -> {
+            localFilterDao.deleteAll();
+            for (LocalFilter f : filters) {
+                f.id = 0; // reset so Room auto-generates new ids
+                localFilterDao.insert(f);
+            }
+            if (onDone != null) onDone.run();
+        });
     }
 
     // ── Message queries ────────────────────────────────────────────────────

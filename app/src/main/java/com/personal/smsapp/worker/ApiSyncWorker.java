@@ -1,7 +1,8 @@
 package com.personal.smsapp.worker;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,25 +14,17 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.personal.smsapp.data.local.LocalFilter;
 import com.personal.smsapp.data.local.Message;
 import com.personal.smsapp.data.local.SmsRepository;
 import com.personal.smsapp.data.remote.ApiService;
+import com.personal.smsapp.util.LocalFilterHelper;
 import com.personal.smsapp.util.Prefs;
+
+import org.json.JSONArray;
 
 import java.util.List;
 
-/**
- * Battery-efficient background processor.
- *
- * WorkManager guarantees execution even after app death/reboot.
- * We use NETWORK_CONNECTED constraint so we never run without connectivity.
- * Multiple incoming messages get batched into a single work execution.
- *
- * Power notes:
- *   - One-time work, not periodic — only runs when there's something to process.
- *   - KEEP policy prevents redundant queuing when messages arrive in bursts.
- *   - No wakelocks held manually; WorkManager handles that.
- */
 public class ApiSyncWorker extends Worker {
 
     private static final String TAG       = "ApiSyncWorker";
@@ -46,7 +39,6 @@ public class ApiSyncWorker extends Worker {
     public Result doWork() {
         Context ctx = getApplicationContext();
 
-        // Load settings
         String apiUrl = Prefs.getApiUrl(ctx);
         String apiKey = Prefs.getApiKey(ctx);
 
@@ -55,14 +47,33 @@ public class ApiSyncWorker extends Worker {
             return Result.success();
         }
 
-        SmsRepository repo = SmsRepository.getInstance(ctx);
-        ApiService    api  = new ApiService(apiUrl, apiKey);
+        // ── WiFi SSID gate ─────────────────────────────────────────────────
+        if (Prefs.isWifiOnly(ctx) && !isOnAllowedSsid(ctx)) {
+            Log.d(TAG, "Not on an allowed WiFi network — retrying later");
+            return Result.retry();
+        }
+
+        SmsRepository repo    = SmsRepository.getInstance(ctx);
+        ApiService    api     = new ApiService(apiUrl, apiKey);
+        List<LocalFilter> filters = repo.getEnabledFiltersSync();
 
         List<Message> pending = repo.getUnprocessedMessages();
         Log.d(TAG, "Processing " + pending.size() + " unprocessed messages");
 
         for (Message msg : pending) {
             try {
+                // ── Local filter classification ────────────────────────────
+                LocalFilterHelper.FilterResult local =
+                    LocalFilterHelper.classify(msg.body, filters);
+
+                if (local.matched && !local.sendToServer) {
+                    // Handle locally — don't call the API
+                    repo.applyApiResult(msg.id, local.tag, false, false);
+                    Log.d(TAG, "Msg " + msg.id + " handled locally, tag=" + local.tag);
+                    continue;
+                }
+
+                // ── Forward to API ─────────────────────────────────────────
                 ApiService.ApiResponse response = api.forwardMessage(
                     msg.id, msg.address, msg.body, msg.date
                 );
@@ -74,11 +85,9 @@ public class ApiSyncWorker extends Worker {
                 );
                 Log.d(TAG, "Processed msg " + msg.id
                     + " -> action=" + response.action
-                    + " tag=" + response.tag
-                    + " important=" + response.important);
+                    + " tag=" + response.tag);
             } catch (Exception e) {
                 Log.e(TAG, "Failed processing message " + msg.id, e);
-                // Continue with next message rather than failing the whole job
             }
         }
 
@@ -86,12 +95,42 @@ public class ApiSyncWorker extends Worker {
     }
 
     /**
+     * Returns true if the device is currently connected to one of the user's
+     * whitelisted SSIDs. Returns true (permissive) if the SSID list is empty
+     * or if the Wi-Fi state cannot be determined (e.g. location permission denied).
+     */
+    private boolean isOnAllowedSsid(Context ctx) {
+        try {
+            String ssidsJson = Prefs.getHomeSsidsJson(ctx);
+            JSONArray arr = new JSONArray(ssidsJson);
+            if (arr.length() == 0) return true; // no restrictions set
+
+            WifiManager wifiManager =
+                (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager == null) return true;
+
+            WifiInfo info = wifiManager.getConnectionInfo();
+            String current = info.getSSID(); // "<ssid>" with surrounding quotes
+
+            for (int i = 0; i < arr.length(); i++) {
+                String allowed = "\"" + arr.getString(i) + "\"";
+                if (allowed.equals(current)) return true;
+            }
+            return false;
+        } catch (Exception e) {
+            Log.w(TAG, "Could not check SSID: " + e.getMessage());
+            return true; // fail-open: don't block forwarding on errors
+        }
+    }
+
+    /**
      * Enqueue with KEEP policy — if a sync is already queued, don't add another.
-     * This batches rapid incoming messages efficiently.
+     * Uses UNMETERED constraint when wifi_only is enabled, otherwise CONNECTED.
      */
     public static void enqueue(Context context) {
+        boolean wifiOnly = Prefs.isWifiOnly(context);
         Constraints constraints = new Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiredNetworkType(wifiOnly ? NetworkType.UNMETERED : NetworkType.CONNECTED)
             .build();
 
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ApiSyncWorker.class)

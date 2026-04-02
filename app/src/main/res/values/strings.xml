@@ -8,4 +8,12 @@
     <string name="new_message">New message</string>
     <string name="no_messages">No messages yet</string>
     <string name="api_tag_important">Important</string>
+    <string name="filter_rules_title">Filter Rules</string>
+    <string name="filter_add">Add rule</string>
+    <string name="filter_edit">Edit rule</string>
+    <string name="filter_backup">Backup to server</string>
+    <string name="filter_restore">Restore from server</string>
+    <string name="chip_all">All</string>
+    <string name="chip_unread">Unread</string>
+    <string name="chip_pending">Pending sync</string>
 </resources>

@@ -41,4 +41,18 @@ public interface ConversationDao {
 
     @Query("SELECT * FROM conversations WHERE address LIKE '%' || :query || '%' OR display_name LIKE '%' || :query || '%' ORDER BY date DESC")
     LiveData<List<Conversation>> search(String query);
+
+    @Query("SELECT * FROM conversations WHERE is_archived = 0 AND unread_count > 0 ORDER BY date DESC")
+    LiveData<List<Conversation>> getUnread();
+
+    @Query("SELECT DISTINCT c.* FROM conversations c " +
+           "INNER JOIN messages m ON c.thread_id = m.thread_id " +
+           "WHERE c.is_archived = 0 AND m.api_processed = 0 AND m.type = 1 ORDER BY c.date DESC")
+    LiveData<List<Conversation>> getPendingSync();
+
+    @Query("SELECT * FROM conversations WHERE is_archived = 0 AND last_tag = :tag ORDER BY date DESC")
+    LiveData<List<Conversation>> getByTag(String tag);
+
+    @Query("SELECT DISTINCT last_tag FROM conversations WHERE is_archived = 0 AND last_tag IS NOT NULL AND last_tag != '' ORDER BY last_tag ASC")
+    LiveData<List<String>> getDistinctTags();
 }

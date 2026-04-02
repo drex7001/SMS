@@ -29,6 +29,8 @@ public class Prefs {
     public static final String KEY_NOTIFICATION = "notifications_enabled";
     public static final String KEY_FIRST_LAUNCH = "first_launch";
     public static final String KEY_FONT_SIZE    = "font_size";
+    public static final String KEY_WIFI_ONLY    = "wifi_only";
+    public static final String KEY_HOME_SSIDS   = "home_ssids"; // JSON array string
 
     private static volatile SharedPreferences instance;
 
@@ -123,5 +125,24 @@ public class Prefs {
             .putBoolean(KEY_API_ENABLED,  apiEnabled)
             .putBoolean(KEY_NOTIFICATION, notificationsEnabled)
             .apply();
+    }
+
+    // ── WiFi gating ────────────────────────────────────────────────────────
+
+    public static boolean isWifiOnly(Context ctx) {
+        return get(ctx).getBoolean(KEY_WIFI_ONLY, false);
+    }
+
+    public static void setWifiOnly(Context ctx, boolean wifiOnly) {
+        get(ctx).edit().putBoolean(KEY_WIFI_ONLY, wifiOnly).apply();
+    }
+
+    /** Returns the stored SSID list as a JSON array string, e.g. ["HomeWiFi","Office"] */
+    public static String getHomeSsidsJson(Context ctx) {
+        return get(ctx).getString(KEY_HOME_SSIDS, "[]");
+    }
+
+    public static void setHomeSsidsJson(Context ctx, String json) {
+        get(ctx).edit().putString(KEY_HOME_SSIDS, json).apply();
     }
 }

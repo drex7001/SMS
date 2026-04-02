@@ -94,7 +94,7 @@ public class SmsReceiver extends BroadcastReceiver {
         // ── 3. Persist in our DB and notify ────────────────────────────────
         SmsRepository repo = SmsRepository.getInstance(context);
         repo.insertIncoming(finalSender, finalBody, finalDate, finalSysId, finalThreadId, () -> {
-            NotificationHelper.showIncoming(context, finalSender, finalBody);
+            NotificationHelper.showIncoming(context, finalSender, finalBody, finalThreadId);
             ApiSyncWorker.enqueue(context);
         });
     }

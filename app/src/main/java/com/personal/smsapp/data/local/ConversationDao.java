@@ -27,6 +27,9 @@ public interface ConversationDao {
     @Query("SELECT * FROM conversations WHERE is_archived = 1 ORDER BY date DESC")
     LiveData<List<Conversation>> getArchived();
 
+    @Query("SELECT thread_id FROM conversations WHERE address = :address LIMIT 1")
+    long getThreadIdByAddress(String address);
+
     @Query("SELECT * FROM conversations WHERE thread_id = :threadId LIMIT 1")
     Conversation getByThreadId(long threadId);
 

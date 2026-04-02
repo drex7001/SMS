@@ -33,11 +33,12 @@ public class NotificationHelper {
         if (nm != null) nm.createNotificationChannel(ch);
     }
 
-    public static void showIncoming(Context ctx, String sender, String body) {
+    public static void showIncoming(Context ctx, String sender, String body, long threadId) {
         if (!Prefs.areNotificationsEnabled(ctx)) return;
 
         Intent tapIntent = new Intent(ctx, MessageThreadActivity.class);
         tapIntent.putExtra(MessageThreadActivity.EXTRA_ADDRESS, sender);
+        tapIntent.putExtra(MessageThreadActivity.EXTRA_THREAD_ID, threadId);
         tapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pi = PendingIntent.getActivity(ctx,

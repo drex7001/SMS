@@ -123,6 +123,10 @@ public class SmsRepository {
         return messageDao.getMessagesForThread(threadId);
     }
 
+    public long getThreadIdForAddress(String address) {
+        return conversationDao.getThreadIdByAddress(address);
+    }
+
     // ── Write ops (all dispatched to background) ───────────────────────────
 
     /**

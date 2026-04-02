@@ -4,5 +4,7 @@
         Exposes getExternalFilesDir(DIRECTORY_DOWNLOADS) to the system APK installer.
         No WRITE_EXTERNAL_STORAGE permission is needed for this directory.
     -->
-    <external-files-path name="apk_downloads" path="Downloads/" />
+    <!-- path="." covers everything under getExternalFilesDir(), including
+         Environment.DIRECTORY_DOWNLOADS which resolves to "Download" (no s). -->
+    <external-files-path name="apk_downloads" path="." />
 </paths>

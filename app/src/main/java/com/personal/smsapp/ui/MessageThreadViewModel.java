@@ -26,6 +26,11 @@ public class MessageThreadViewModel extends AndroidViewModel {
         return repo.getMessages(threadId);
     }
 
+    /** Resolves the thread_id for an address from the local DB (background only). */
+    public long getThreadIdForAddress(String address) {
+        return repo.getThreadIdForAddress(address);
+    }
+
     public void markRead(long threadId) {
         executor.execute(() -> repo.markThreadRead(threadId));
     }

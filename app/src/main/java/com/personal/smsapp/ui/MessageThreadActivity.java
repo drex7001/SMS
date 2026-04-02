@@ -137,8 +137,29 @@ public class MessageThreadActivity extends AppCompatActivity {
     }
 
     private void observeMessages() {
-        if (threadId < 0) return;
-        viewModel.getMessages(threadId).observe(this, messages -> {
+        if (threadId > 0) {
+            loadMessagesForThread(threadId);
+        } else if (address != null) {
+            // Notification intent may not carry thread_id — resolve it from DB
+            new Thread(() -> {
+                long resolved = viewModel.getThreadIdForAddress(address);
+                if (resolved > 0) {
+                    runOnUiThread(() -> {
+                        if (!isDestroyed()) {
+                            threadId = resolved;
+                            loadMessagesForThread(threadId);
+                            viewModel.markRead(threadId);
+                            NotificationHelper.cancelForSender(MessageThreadActivity.this,
+                                    address != null ? address : "");
+                        }
+                    });
+                }
+            }).start();
+        }
+    }
+
+    private void loadMessagesForThread(long tid) {
+        viewModel.getMessages(tid).observe(this, messages -> {
             adapter.submitList(messages);
             if (messages != null && !messages.isEmpty()) {
                 binding.recyclerMessages.scrollToPosition(messages.size() - 1);

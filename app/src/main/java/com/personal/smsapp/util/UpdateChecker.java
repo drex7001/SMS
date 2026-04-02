@@ -163,16 +163,16 @@ public final class UpdateChecker {
                     return;
                 }
 
-                Uri apkUri = FileProvider.getUriForFile(
-                        appCtx,
-                        appCtx.getPackageName() + ".fileprovider",
-                        destFile);
-
-                Intent install = new Intent(Intent.ACTION_VIEW)
-                        .setDataAndType(apkUri, "application/vnd.android.package-archive")
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
+                    Uri apkUri = FileProvider.getUriForFile(
+                            appCtx,
+                            appCtx.getPackageName() + ".fileprovider",
+                            destFile);
+
+                    Intent install = new Intent(Intent.ACTION_VIEW)
+                            .setDataAndType(apkUri, "application/vnd.android.package-archive")
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                    | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     appCtx.startActivity(install);
                 } catch (Exception e) {
                     Toast.makeText(appCtx, "Could not launch installer: " + e.getMessage(),

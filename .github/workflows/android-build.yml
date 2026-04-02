@@ -28,6 +28,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Restore debug keystore
+        # Decodes the keystore stored as a base64 GitHub secret so CI signs
+        # with the same certificate as your local machine — required for
+        # Android to accept the APK as an update to an already-installed app.
+        run: |
+          mkdir -p "$HOME/.android"
+          echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > "$HOME/.android/debug.keystore"
+
       - name: Build debug APK
         # assembleDebug compiles + packages only — does NOT run lint.
         # This job's only job is to verify the code compiles and links.

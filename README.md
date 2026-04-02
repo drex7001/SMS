@@ -22,6 +22,8 @@ A minimal, battery-efficient Android SMS replacement app with API message forwar
 - Optional `X-API-Key` header for authentication
 - API can tag messages (shown as chips), flag as important (red dot), or delete
 - WorkManager-powered background sync — battery safe, waits for network, deduplicates rapid messages
+- **Home network gating** — optionally restrict forwarding to whitelisted WiFi SSIDs only
+- **Local filter rules** — classify messages on-device before they reach the API; configurable per category
 
 ### UI / UX
 
@@ -30,6 +32,7 @@ A minimal, battery-efficient Android SMS replacement app with API message forwar
 - Unread count badges, per-contact colored avatars (hashed from name)
 - Timestamp formatting: today → HH:mm, this week → day name, older → MM/DD/YY
 - Edge-to-edge display with system insets handling
+- **Conversation filter chips** — filter list by All / Unread / Pending sync / tag
 
 ### Other
 
@@ -63,9 +66,11 @@ A minimal, battery-efficient Android SMS replacement app with API message forwar
 
 1. System broadcasts `SMS_DELIVER` → `SmsReceiver`
 2. Receiver writes to system SMS store + Room DB via `SmsRepository.insertIncoming()`
-3. Enqueues one-time `ApiSyncWorker` (constraint: `CONNECTED`)
-4. Worker batch-processes all unprocessed messages → `ApiService.forwardMessage()`
-5. API response applied: tag / important / delete via `SmsRepository.applyApiResult()`
+3. Enqueues one-time `ApiSyncWorker` (constraint: `CONNECTED` or `UNMETERED` when WiFi-only)
+4. Worker checks WiFi SSID gate (if enabled), then runs each message through local filter rules
+5. Matched + local-only messages: tagged in DB, API skipped
+6. Remaining messages → `ApiService.forwardMessage()`
+7. API response applied: tag / important / delete via `SmsRepository.applyApiResult()`
 
 **Key decisions:**
 
@@ -86,34 +91,40 @@ app/src/main/java/com/personal/smsapp/
 │   ├── local/
 │   │   ├── Message.java              — Room entity (apiTag, isImportant, apiProcessed)
 │   │   ├── Conversation.java         — Room entity for thread summaries
+│   │   ├── LocalFilter.java          — Room entity for on-device classification rules
 │   │   ├── MessageDao.java           — Room DAO (LiveData queries, batch ops)
-│   │   ├── ConversationDao.java      — Room DAO (search, tag updates, archive)
-│   │   ├── AppDatabase.java          — Room DB singleton (sms_app.db)
+│   │   ├── ConversationDao.java      — Room DAO (search, filter, tag, archive queries)
+│   │   ├── LocalFilterDao.java       — Room DAO (CRUD + enabled sync query)
+│   │   ├── AppDatabase.java          — Room DB v2 singleton (sms_app.db)
 │   │   └── SmsRepository.java        — Single source of truth (DB + ContentProvider)
 │   └── remote/
-│       └── ApiService.java           — OkHttp POST + JSON response parsing
+│       └── ApiService.java           — OkHttp POST + JSON parsing + filter backup/restore
 ├── receiver/
 │   ├── SmsReceiver.java              — SMS_DELIVER broadcast → insert + enqueue worker
 │   └── MmsReceiver.java              — WAP_PUSH_DELIVER (required for default app role)
 ├── worker/
-│   └── ApiSyncWorker.java            — WorkManager: batch-process pending messages
+│   └── ApiSyncWorker.java            — WorkManager: SSID gate + local filter + API forward
 ├── service/
 │   ├── RespondViaMessageService.java — System quick-reply from call screen
 │   └── HeadsUpService.java           — Stub service required for default SMS role
 ├── util/
 │   ├── Prefs.java                    — EncryptedSharedPreferences wrapper (AES-256)
+│   ├── LocalFilterHelper.java        — classify(body, filters) → first-match keyword/regex
 │   ├── NotificationHelper.java       — Channel management + incoming SMS alerts
 │   ├── PhoneUtils.java               — Timestamps, default-app helpers
 │   └── UpdateChecker.java            — GitHub Releases auto-update checker
 └── ui/
-    ├── ConversationListActivity.java  — Main screen: list, search, permissions
-    ├── ConversationListViewModel.java — LiveData + switchMap search
+    ├── ConversationListActivity.java  — Main screen: list, search, filter chips
+    ├── ConversationListViewModel.java — LiveData + filter state (ALL/UNREAD/PENDING/TAG)
     ├── ConversationAdapter.java       — DiffUtil, hashed avatar colors
+    ├── FilterSettingsActivity.java    — Add/edit/delete filter rules, backup/restore
+    ├── FilterSettingsViewModel.java   — Filter rule CRUD
+    ├── FilterRuleAdapter.java         — DiffUtil list for filter rules
     ├── MessageThreadActivity.java     — Chat thread: messages, send, delete
     ├── MessageThreadViewModel.java    — LiveData messages, mark-read
     ├── MessageAdapter.java            — Dual viewType (incoming/outgoing bubbles)
     ├── ComposeActivity.java           — New message with contact autocomplete
-    └── SettingsActivity.java          — API URL, key, toggle, test sync
+    └── SettingsActivity.java          — API URL/key, WiFi gating, filter rules nav
 ```
 
 ---
@@ -171,6 +182,18 @@ app/src/main/java/com/personal/smsapp/
 | has_important | INTEGER | Thread contains important messages |
 | is_archived   | INTEGER |                                    |
 
+### `local_filters`
+
+| Column         | Type    | Notes                                      |
+| -------------- | ------- | ------------------------------------------ |
+| id             | INTEGER | PK, auto-generated                         |
+| name           | TEXT    | Category label (e.g. "OTP", "Bank")        |
+| signal         | TEXT    | Keyword substring or regex pattern         |
+| is_regex       | INTEGER | Boolean — treat signal as Java regex       |
+| tag            | TEXT    | Tag applied to matched messages            |
+| send_to_server | INTEGER | Boolean — false = handle locally, skip API |
+| enabled        | INTEGER | Boolean — rule is active                   |
+
 ---
 
 ## Setup
@@ -180,6 +203,8 @@ app/src/main/java/com/personal/smsapp/
 3. Grant SMS, contacts, and notification permissions when prompted
 4. Accept the default SMS app prompt
 5. Go to **Settings** → enter your API URL (and optional key) → Save
+6. _(Optional)_ Enable **Home network only** and add your WiFi SSIDs
+7. _(Optional)_ Tap **Message filter rules** to add on-device classification rules
 
 `minSdk 26` · `targetSdk 36` · Java 17
 
@@ -246,6 +271,53 @@ Header: `X-API-Key: <your_secret>` (if configured in Settings)
 
 ---
 
+## Local Filter Rules
+
+Configured in **Settings → Message filter rules**. Rules are evaluated in creation order; first match wins.
+
+| Field             | Description                                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| Category name     | Human label shown in UI (e.g. "OTP", "Bank")                      |
+| Signal            | Keyword (substring) or regex pattern matched against message body |
+| Regex toggle      | Treat signal as a Java regex with `CASE_INSENSITIVE` flag         |
+| Tag               | Applied to matched messages as a chip label                       |
+| Forward to server | Off → message is processed locally, API call skipped              |
+| Enabled           | Quickly disable a rule without deleting it                        |
+
+Invalid regex patterns are silently skipped (rule does not match).
+
+### Backup / Restore
+
+Filter rules can be backed up to and restored from your API server. The endpoint is auto-derived from your API URL by replacing the path with `/filters`:
+
+```
+http://192.168.1.10:5000/sms-webhook  →  http://192.168.1.10:5000/filters
+```
+
+**Backup** — `POST /filters` with body:
+
+```json
+{
+    "filters": [{ "name": "OTP", "signal": "\\b\\d{4,8}\\b", "is_regex": true, "tag": "otp", "send_to_server": false, "enabled": true }]
+}
+```
+
+**Restore** — `GET /filters` must return the same shape.
+
+---
+
+## WiFi Network Gating
+
+Enable **Home network only** in Settings to restrict API forwarding to specific WiFi networks.
+
+- Add one or more SSIDs (network names) via **Add network**
+- When enabled, the WorkManager constraint switches to `UNMETERED` (WiFi only)
+- At job execution, the current SSID is checked against the whitelist; if not matched → `Result.retry()` (job stays queued until you return home)
+- If the SSID list is empty, all WiFi networks are allowed
+- Android 9+ requires location permission to read the SSID — the app prompts when the toggle is turned on
+
+---
+
 ## Permissions
 
 | Permission                 | Purpose                                  |
@@ -258,6 +330,8 @@ Header: `X-API-Key: <your_secret>` (if configured in Settings)
 | `READ_CONTACTS`            | Contact name resolution + autocomplete   |
 | `INTERNET`                 | API forwarding + update checks           |
 | `ACCESS_NETWORK_STATE`     | WorkManager network constraint           |
+| `ACCESS_WIFI_STATE`        | Read current WiFi connection info        |
+| `ACCESS_FINE_LOCATION`     | Required on API 28+ to read WiFi SSID    |
 | `POST_NOTIFICATIONS`       | Incoming SMS notifications (Android 13+) |
 | `VIBRATE`                  | Notification vibration                   |
 | `REQUEST_INSTALL_PACKAGES` | Auto-update APK installation             |
@@ -266,13 +340,15 @@ Header: `X-API-Key: <your_secret>` (if configured in Settings)
 
 ## Power Efficiency
 
-| Concern                | Solution                                                                           |
-| ---------------------- | ---------------------------------------------------------------------------------- |
-| API calls on every SMS | WorkManager with `NETWORK_CONNECTED` constraint — deferred until network available |
-| Burst messages         | `ExistingWorkPolicy.KEEP` — multiple arrivals = one job execution                  |
-| No polling             | Event-driven only (receiver → worker → done)                                       |
-| Background limits      | WorkManager handles Android Doze / battery saver transparently                     |
-| DB queries             | Room LiveData; no manual polling loops                                             |
+| Concern                | Solution                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| API calls on every SMS | WorkManager with `NETWORK_CONNECTED` (or `UNMETERED`) constraint — deferred until available |
+| Burst messages         | `ExistingWorkPolicy.KEEP` — multiple arrivals = one job execution                           |
+| Local-only messages    | Classified on-device by filter rules — API never called                                     |
+| Away from home         | WiFi SSID gate → `Result.retry()` — job stays queued, no wasted call                        |
+| No polling             | Event-driven only (receiver → worker → done)                                                |
+| Background limits      | WorkManager handles Android Doze / battery saver transparently                              |
+| DB queries             | Room LiveData; no manual polling loops                                                      |
 
 ---
 
@@ -280,9 +356,10 @@ Header: `X-API-Key: <your_secret>` (if configured in Settings)
 
 ```python
 from flask import Flask, request, jsonify
-import re
+import re, json, os
 
 app = Flask(__name__)
+FILTERS_FILE = 'filters.json'
 
 @app.route('/sms-webhook', methods=['POST'])
 def sms_webhook():
@@ -298,6 +375,19 @@ def sms_webhook():
         return jsonify(action='delete', tag='spam', important=False)
 
     return jsonify(action='keep', tag='', important=False)
+
+@app.route('/filters', methods=['GET'])
+def get_filters():
+    if os.path.exists(FILTERS_FILE):
+        with open(FILTERS_FILE) as f:
+            return jsonify(json.load(f))
+    return jsonify(filters=[])
+
+@app.route('/filters', methods=['POST'])
+def save_filters():
+    with open(FILTERS_FILE, 'w') as f:
+        json.dump(request.json, f)
+    return jsonify(ok=True)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

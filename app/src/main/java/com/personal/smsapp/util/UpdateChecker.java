@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -143,6 +144,25 @@ public final class UpdateChecker {
 
                 if (!destFile.exists()) return;
 
+                // On API 26+, REQUEST_INSTALL_PACKAGES is an appop that must be
+                // explicitly granted by the user in Settings — the manifest declaration
+                // alone is not sufficient. Without it, startActivity throws a
+                // SecurityException or ActivityNotFoundException and crashes the app.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                        && !appCtx.getPackageManager().canRequestPackageInstalls()) {
+                    Toast.makeText(appCtx,
+                            "Allow \"Install unknown apps\" for this app, then re-download.",
+                            Toast.LENGTH_LONG).show();
+                    Intent settings = new Intent(
+                            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                            Uri.parse("package:" + appCtx.getPackageName()))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    try {
+                        appCtx.startActivity(settings);
+                    } catch (Exception ignored) {}
+                    return;
+                }
+
                 Uri apkUri = FileProvider.getUriForFile(
                         appCtx,
                         appCtx.getPackageName() + ".fileprovider",
@@ -152,7 +172,12 @@ public final class UpdateChecker {
                         .setDataAndType(apkUri, "application/vnd.android.package-archive")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                appCtx.startActivity(install);
+                try {
+                    appCtx.startActivity(install);
+                } catch (Exception e) {
+                    Toast.makeText(appCtx, "Could not launch installer: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
             }
         };
 

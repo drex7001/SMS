@@ -11,6 +11,8 @@ jobs:
   build:
     name: Build APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # required to create GitHub Releases
 
     steps:
       - name: Checkout code
@@ -29,7 +31,9 @@ jobs:
       - name: Build debug APK
         # assembleDebug compiles + packages only — does NOT run lint.
         # This job's only job is to verify the code compiles and links.
-        run: ./gradlew assembleDebug --stacktrace
+        # versionCode is set to the monotonically-increasing run number so the
+        # app can compare it against the latest GitHub Release.
+        run: ./gradlew assembleDebug --stacktrace -PversionCode=${{ github.run_number }} -PversionName="1.0.${{ github.run_number }}"
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -37,6 +41,15 @@ jobs:
           name: debug-apk
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 7
+
+      - name: Create GitHub Release
+        # Only publish a release on direct pushes (not on PRs).
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Build ${{ github.run_number }}"
+          files: app/build/outputs/apk/debug/*.apk
 
   # ── Job 2: Lint (non-blocking, informational) ──────────────────────────────
   lint:

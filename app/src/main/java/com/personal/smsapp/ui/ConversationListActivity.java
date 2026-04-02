@@ -28,6 +28,7 @@ import com.personal.smsapp.data.local.SmsRepository;
 import com.personal.smsapp.databinding.ActivityConversationListBinding;
 import com.personal.smsapp.util.PhoneUtils;
 import com.personal.smsapp.util.Prefs;
+import com.personal.smsapp.util.UpdateChecker;
 
 import java.util.ArrayList;
 
@@ -61,6 +62,7 @@ public class ConversationListActivity extends AppCompatActivity {
         observeData();
         setupEdgeToEdge();
         checkPermissions();
+        UpdateChecker.checkForUpdate(this);
     }
 
     private void setupRecyclerView() {

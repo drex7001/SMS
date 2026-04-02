@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!--
+        Exposes getExternalFilesDir(DIRECTORY_DOWNLOADS) to the system APK installer.
+        No WRITE_EXTERNAL_STORAGE permission is needed for this directory.
+    -->
+    <external-files-path name="apk_downloads" path="Downloads/" />
+</paths>

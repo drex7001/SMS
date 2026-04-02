@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_seed_defaults"
+        android:title="Add default rules"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_backup"
         android:title="Backup to server"
         app:showAsAction="never" />

@@ -17,6 +17,7 @@ import com.personal.smsapp.data.local.LocalFilter;
 import com.personal.smsapp.data.remote.ApiService;
 import com.personal.smsapp.databinding.ActivityFilterSettingsBinding;
 import com.personal.smsapp.databinding.DialogEditFilterBinding;
+import com.personal.smsapp.util.DefaultFilters;
 import com.personal.smsapp.util.Prefs;
 
 import java.util.List;
@@ -114,6 +115,10 @@ public class FilterSettingsActivity extends AppCompatActivity {
             getOnBackPressedDispatcher().onBackPressed();
             return true;
         }
+        if (id == R.id.action_seed_defaults) {
+            doSeedDefaults();
+            return true;
+        }
         if (id == R.id.action_backup) {
             doBackup();
             return true;
@@ -123,6 +128,26 @@ public class FilterSettingsActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void doSeedDefaults() {
+        List<LocalFilter> defaults = DefaultFilters.get();
+        int existing = adapter.getCurrentList().size();
+        String msg = existing == 0
+            ? "Add " + defaults.size() + " default filter rules?"
+            : "Append " + defaults.size() + " default rules to your " + existing + " existing rules?";
+
+        new MaterialAlertDialogBuilder(this)
+            .setTitle("Default rules")
+            .setMessage(msg)
+            .setPositiveButton("Add", (d, w) -> {
+                for (LocalFilter f : defaults) viewModel.save(f);
+                Snackbar.make(binding.getRoot(),
+                    "Added " + defaults.size() + " default rules",
+                    Snackbar.LENGTH_SHORT).show();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
     }
 
     private void doBackup() {

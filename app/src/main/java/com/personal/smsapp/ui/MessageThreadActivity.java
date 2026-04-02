@@ -100,27 +100,40 @@ public class MessageThreadActivity extends AppCompatActivity {
         binding.etMessage.setText("");
         binding.btnSend.setEnabled(false);
 
-        try {
-            SmsManager smsManager = getSystemService(SmsManager.class);
-            ArrayList<String> parts = smsManager.divideMessage(text);
+        SmsManager smsManager = getSystemService(SmsManager.class);
+        ArrayList<String> parts = smsManager.divideMessage(text);
 
-            // Build sent/delivered intents
-            ArrayList<PendingIntent> sentIntents = new ArrayList<>();
-            for (int i = 0; i < parts.size(); i++) {
-                Intent si = new Intent("SMS_SENT");
-                sentIntents.add(PendingIntent.getBroadcast(this, i, si,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
-            }
-
-            smsManager.sendMultipartTextMessage(address, null, parts, sentIntents, null);
-
-            // Persist to our DB
-            viewModel.saveOutgoing(address, text, threadId);
-        } catch (Exception e) {
-            Toast.makeText(this, "Failed to send: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        // Build sent intents on main thread (PendingIntent requires UI context)
+        ArrayList<PendingIntent> sentIntents = new ArrayList<>();
+        for (int i = 0; i < parts.size(); i++) {
+            Intent si = new Intent("SMS_SENT");
+            sentIntents.add(PendingIntent.getBroadcast(this, i, si,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         }
 
-        binding.btnSend.setEnabled(true);
+        final String finalText = text;
+        new Thread(() -> {
+            try {
+                smsManager.sendMultipartTextMessage(address, null, parts, sentIntents, null);
+                runOnUiThread(() -> {
+                    if (!isDestroyed()) {
+                        viewModel.saveOutgoing(address, finalText, threadId);
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    if (!isDestroyed()) {
+                        Toast.makeText(this, "Failed to send: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                        binding.btnSend.setEnabled(true);
+                    }
+                });
+                return;
+            }
+            runOnUiThread(() -> {
+                if (!isDestroyed()) binding.btnSend.setEnabled(true);
+            });
+        }).start();
     }
 
     private void observeMessages() {

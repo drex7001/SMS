@@ -270,8 +270,7 @@ public class SmsRepository {
      */
     public void syncFromSystem(Runnable onComplete) {
         ioExecutor.execute(() -> {
-            try {
-                Cursor c = resolver.query(Telephony.Sms.CONTENT_URI,
+            try (Cursor c = resolver.query(Telephony.Sms.CONTENT_URI,
                     new String[]{
                         Telephony.Sms._ID,
                         Telephony.Sms.THREAD_ID,
@@ -281,7 +280,7 @@ public class SmsRepository {
                         Telephony.Sms.TYPE,
                         Telephony.Sms.READ
                     },
-                    null, null, Telephony.Sms.DATE + " ASC");
+                    null, null, Telephony.Sms.DATE + " ASC")) {
 
                 if (c == null) return;
 
@@ -310,7 +309,6 @@ public class SmsRepository {
                     messageDao.insert(msg);
                     upsertConversation(threadId, msg.address, msg.body, date);
                 }
-                c.close();
             } catch (Exception e) {
                 Log.e(TAG, "syncFromSystem failed", e);
             }

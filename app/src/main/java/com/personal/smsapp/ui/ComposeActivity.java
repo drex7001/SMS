@@ -207,6 +207,7 @@ public class ComposeActivity extends AppCompatActivity {
 
             suggestions.addAll(dedupedContacts.values());
             runOnUiThread(() -> {
+                if (isDestroyed()) return;
                 contactsLoaded = true;
                 contactSuggestionAdapter.replaceItems(suggestions);
                 if (binding.etRecipient.hasFocus() && binding.etRecipient.length() > 0) {
@@ -271,7 +272,7 @@ public class ComposeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        contactExecutor.shutdown();
+        contactExecutor.shutdownNow();
     }
 
     private static class ContactSuggestion {

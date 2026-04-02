@@ -7,7 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.core.app.NotificationCompat;
+import android.util.Log;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.personal.smsapp.R;
@@ -56,8 +56,8 @@ public class NotificationHelper {
         try {
             NotificationManagerCompat.from(ctx)
                 .notify(BASE_ID + Math.abs(sender.hashCode() % 1000), n);
-        } catch (SecurityException ignored) {
-            // POST_NOTIFICATIONS not granted
+        } catch (SecurityException e) {
+            Log.w("NotificationHelper", "POST_NOTIFICATIONS permission not granted — skipping notification", e);
         }
     }
 

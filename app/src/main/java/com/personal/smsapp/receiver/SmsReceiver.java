@@ -77,7 +77,14 @@ public class SmsReceiver extends BroadcastReceiver {
             Uri inserted = context.getContentResolver()
                     .insert(Telephony.Sms.Inbox.CONTENT_URI, cv);
             if (inserted != null) {
-                sysId = Long.parseLong(inserted.getLastPathSegment());
+                String lastSegment = inserted.getLastPathSegment();
+                if (lastSegment != null && !lastSegment.isEmpty()) {
+                    try {
+                        sysId = Long.parseLong(lastSegment);
+                    } catch (NumberFormatException e) {
+                        Log.w(TAG, "Unexpected URI path segment from system inbox: " + lastSegment);
+                    }
+                }
             }
         } catch (Exception e) {
             Log.e(TAG, "Failed to write SMS to system inbox", e);

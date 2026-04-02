@@ -3,6 +3,7 @@ package com.personal.smsapp.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -135,12 +136,14 @@ public class ConversationListActivity extends AppCompatActivity {
     // ── Permissions ────────────────────────────────────────────────────────
 
     private void checkPermissions() {
-        String[] required = {
-            Manifest.permission.READ_SMS,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.READ_CONTACTS,
-        };
+        ArrayList<String> required = new ArrayList<>();
+        required.add(Manifest.permission.READ_SMS);
+        required.add(Manifest.permission.SEND_SMS);
+        required.add(Manifest.permission.RECEIVE_SMS);
+        required.add(Manifest.permission.READ_CONTACTS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            required.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
         boolean allGranted = true;
         for (String p : required) {
             if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
@@ -151,7 +154,7 @@ public class ConversationListActivity extends AppCompatActivity {
         if (allGranted) {
             checkDefaultSmsApp();
         } else {
-            permissionLauncher.launch(required);
+            permissionLauncher.launch(required.toArray(new String[0]));
         }
     }
 

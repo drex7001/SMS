@@ -106,6 +106,9 @@ public final class UpdateChecker {
     // ── Download & install ───────────────────────────────────────────────────
 
     private static void startDownload(Activity activity, String downloadUrl) {
+        // Use application context so the receiver isn't tied to the Activity lifecycle.
+        Context appCtx = activity.getApplicationContext();
+
         // Destination: app-private external Downloads dir — no permission required.
         File destFile = new File(
                 activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
@@ -135,21 +138,21 @@ public final class UpdateChecker {
                 if (completedId != downloadId) return;
 
                 try {
-                    ctx.unregisterReceiver(this);
+                    appCtx.unregisterReceiver(this);
                 } catch (IllegalArgumentException ignored) {}
 
                 if (!destFile.exists()) return;
 
                 Uri apkUri = FileProvider.getUriForFile(
-                        ctx,
-                        ctx.getPackageName() + ".fileprovider",
+                        appCtx,
+                        appCtx.getPackageName() + ".fileprovider",
                         destFile);
 
                 Intent install = new Intent(Intent.ACTION_VIEW)
                         .setDataAndType(apkUri, "application/vnd.android.package-archive")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                ctx.startActivity(install);
+                appCtx.startActivity(install);
             }
         };
 
@@ -157,9 +160,9 @@ public final class UpdateChecker {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // API 33+: must explicitly state exported; EXPORTED because DownloadManager
             // (system process) sends this broadcast.
-            activity.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
+            appCtx.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
         } else {
-            activity.registerReceiver(receiver, filter);
+            appCtx.registerReceiver(receiver, filter);
         }
     }
 }

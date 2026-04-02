@@ -82,7 +82,8 @@ public class ConversationAdapter
         void bind(Conversation c) {
             String displayName = (c.displayName != null && !c.displayName.isEmpty())
                 ? c.displayName
-                : (c.address != null ? c.address : "?");
+                : (c.address != null && !c.address.isEmpty() ? c.address : "?");
+            if (displayName.isEmpty()) displayName = "?";
 
             tvName.setText(displayName);
             tvSnippet.setText(c.snippet);

@@ -16,4 +16,5 @@
     <string name="chip_all">All</string>
     <string name="chip_unread">Unread</string>
     <string name="chip_pending">Pending sync</string>
+    <string name="monarra_title">Monarra</string>
 </resources>

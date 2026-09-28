@@ -1,0 +1,47 @@
+{
+  "description": "hex(SHA-256(upper(trim(sender)) + '|' + sent_at_ms + '|' + body)), UTF-8. The first two cases differ only in sender spacing and case, so they share a hash.",
+  "cases": [
+    {
+      "sender": "COMBANK",
+      "sent_at_ms": 1790000000000,
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER.",
+      "hash": "9b8ffe96d4ac830a0b4b8ed40eb5d77da835fdbe9c1f320e78b433e7d43cf346"
+    },
+    {
+      "sender": "  combank ",
+      "sent_at_ms": 1790000000000,
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER.",
+      "hash": "9b8ffe96d4ac830a0b4b8ed40eb5d77da835fdbe9c1f320e78b433e7d43cf346"
+    },
+    {
+      "sender": "HNB",
+      "sent_at_ms": 1790000000001,
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER.",
+      "hash": "620c18f9b20e021ce36f3e00ef7778e620707bb08aa521bc721b52ef615aecc4"
+    },
+    {
+      "sender": "Sampath",
+      "sent_at_ms": 1791234567890,
+      "body": "ඔබගේ ගිණුමෙන් රු. 2,500.00 ක් හර කර ඇත.",
+      "hash": "41747dff101de3717baa79ab4b9597272ec6ef23370dc71d7b05be8db7ce1e55"
+    },
+    {
+      "sender": "BOC",
+      "sent_at_ms": 1791234567890,
+      "body": "உங்கள் கணக்கில் ரூ. 10,000.00 வரவு வைக்கப்பட்டது.",
+      "hash": "351f4977609d6895100071dd450ff272bb204699c9ed967e39eaf7888059aaf9"
+    },
+    {
+      "sender": "+94771234567",
+      "sent_at_ms": 0,
+      "body": "",
+      "hash": "0368dc3209d1c81ee282563276a8d69af6fbcb1ae481415e1bbb4f73f68d2f53"
+    },
+    {
+      "sender": "NTB",
+      "sent_at_ms": 1790000000000,
+      "body": "Line one\nLine two | with a pipe",
+      "hash": "c4b4957a766f81b3381e8d41e524d44db156cb6ae99ab3191b733179427e2d66"
+    }
+  ]
+}

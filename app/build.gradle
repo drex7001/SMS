@@ -12,6 +12,13 @@ android {
         targetSdk 36
         versionCode project.hasProperty('versionCode') ? project.versionCode.toInteger() : 1
         versionName project.hasProperty('versionName') ? project.versionName : "1.0"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // Room schemas are exported (app/schemas) so migrations can be checked against them.
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     signingConfigs {
@@ -34,6 +41,20 @@ android {
         debug {
             applicationIdSuffix ".debug"
         }
+    }
+
+    // The Monarra bridge's IDs per build type (Monarra repo, docs/SMS_BRIDGE.md §1). Debug builds
+    // only talk to debug builds, so both can be installed next to the release apps.
+    def bridgeIds = [
+        debug  : [monarra: 'com.personal.monarra.debug', permission: 'com.personal.monarra.debug.permission.SMS_BRIDGE'],
+        release: [monarra: 'com.personal.monarra',       permission: 'com.personal.monarra.permission.SMS_BRIDGE'],
+    ]
+    buildTypes.configureEach { type ->
+        def ids = bridgeIds[type.name]
+        type.manifestPlaceholders.put('monarraPackage', ids.monarra)
+        type.manifestPlaceholders.put('bridgePermission', ids.permission)
+        type.buildConfigField 'String', 'MONARRA_PACKAGE', "\"${ids.monarra}\""
+        type.buildConfigField 'String', 'BRIDGE_PERMISSION', "\"${ids.permission}\""
     }
 
     compileOptions {

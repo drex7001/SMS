@@ -33,6 +33,21 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!--
+        On-device bridge to Monarra (Monarra repo, docs/SMS_BRIDGE.md). A signature permission: only
+        apps signed with the same key can use it. Declared in both apps, so install order doesn't matter,
+        and held by this app too because Monarra's receiver requires it of the nudge's sender.
+    -->
+    <permission
+        android:name="${bridgePermission}"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="${bridgePermission}" />
+
+    <queries>
+        <package android:name="${monarraPackage}" />
+    </queries>
+
+    <!--
         BROADCAST_WAP_PUSH and SEND_RESPOND_VIA_MESSAGE are NOT declared here.
 
         These are signature-level protected permissions — only the system can hold them.
@@ -45,7 +60,7 @@
     -->
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -177,6 +192,16 @@
                 android:name="androidx.work.WorkManagerInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <!--
+            Monarra reads the feed of financial SMS here. Every entry point also checks the permission
+            in code, because android:permission doesn't cover call().
+        -->
+        <provider
+            android:name=".monarra.BridgeProvider"
+            android:authorities="${applicationId}.monarrabridge"
+            android:exported="true"
+            android:permission="${bridgePermission}" />
 
         <!-- FileProvider for serving downloaded APK to the system installer -->
         <provider

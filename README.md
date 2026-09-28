@@ -25,6 +25,14 @@ A minimal, battery-efficient Android SMS replacement app with API message forwar
 - **Home network gating** — optionally restrict forwarding to whitelisted WiFi SSIDs only
 - **Local filter rules** — classify messages on-device before they reach the API; configurable per category
 
+### Monarra bridge
+
+- Hands bank SMS to [Monarra](https://github.com/chathura-d/monarra), the money manager, on the phone itself: no network involved
+- Monarra decides which senders count as banks and pushes the rules here; until it does, nothing is shared
+- One-time codes never go to Monarra, whatever the rules say (a built-in deny that can't be switched off)
+- Only apps signed with the same key can connect (a signature permission); Settings → Monarra shows the connection
+- The contract (IDs, columns, methods) is `docs/SMS_BRIDGE.md` in the Monarra repo; both repos test against `bridge-fixtures/`
+
 ### UI / UX
 
 - Material Design 3 with day/night themes (Indigo brand)
@@ -193,6 +201,23 @@ app/src/main/java/com/personal/smsapp/
 | tag            | TEXT    | Tag applied to matched messages            |
 | send_to_server | INTEGER | Boolean — false = handle locally, skip API |
 | enabled        | INTEGER | Boolean — rule is active                   |
+
+### `financial_feed`
+
+SMS waiting for (or already handed to) Monarra. Acknowledged rows lose their body after 7 days and are deleted after 30.
+
+| Column       | Type    | Notes                                                        |
+| ------------ | ------- | ------------------------------------------------------------ |
+| seq          | INTEGER | PK, AUTOINCREMENT: Monarra's cursor, never reused            |
+| message_hash | TEXT    | Unique: SHA-256 of sender, sent time and body                |
+| sender       | TEXT    | Originating address                                          |
+| body         | TEXT    | Null once wiped                                              |
+| sent_at      | INTEGER | Service-centre timestamp (ms)                                |
+| received_at  | INTEGER | Device clock at capture (ms)                                 |
+| sim_slot     | INTEGER | -1 if unknown                                                |
+| origin       | TEXT    | `LIVE` or `BACKFILL`                                         |
+| created_at   | INTEGER | When the row was added (ms)                                  |
+| acked_at     | INTEGER | When Monarra acknowledged it (ms), or null                   |
 
 ---
 

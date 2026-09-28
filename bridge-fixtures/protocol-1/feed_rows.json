@@ -1,0 +1,35 @@
+{
+  "description": "Example feed rows. Row 3's body was wiped by retention, so its hash was computed before the wipe (here from the placeholder 'wiped').",
+  "rows": [
+    {
+      "seq": 1,
+      "sender": "COMBANK",
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER on 28/09/26. Avl Bal LKR 12,345.67",
+      "sent_at_ms": 1790580000000,
+      "received_at_ms": 1790580002000,
+      "sim_slot": 0,
+      "origin": "LIVE",
+      "message_hash": "77f0ac73dc8af03f095aa81a29ee9a03442d4f2bc5b7dc840479f7af30127c8e"
+    },
+    {
+      "seq": 2,
+      "sender": "HNB",
+      "body": "LKR 125,000.00 credited to A/C XX5678. SALARY. Bal LKR 140,210.00",
+      "sent_at_ms": 1788000000000,
+      "received_at_ms": 1788000000000,
+      "sim_slot": -1,
+      "origin": "BACKFILL",
+      "message_hash": "b8d7fbbab8ac13e90b3821569e7839e93276e31e7ce48ebbe3da4c6e5c53cee8"
+    },
+    {
+      "seq": 3,
+      "sender": "COMBANK",
+      "body": null,
+      "sent_at_ms": 1780000000000,
+      "received_at_ms": 1780000001000,
+      "sim_slot": 1,
+      "origin": "LIVE",
+      "message_hash": "c5cb9f7966c52a623bf5d9dceea8166419ad7579225a03d93d3a00093a7de5c6"
+    }
+  ]
+}

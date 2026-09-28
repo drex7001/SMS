@@ -129,30 +129,41 @@ public class SmsRepository {
 
     // ── Write ops (all dispatched to background) ───────────────────────────
 
+    /** Called on the IO thread once an incoming SMS is stored, with its row id (-1 if storing failed). */
+    public interface IncomingCallback {
+        void onStored(long messageId);
+    }
+
     /**
      * Called by SmsReceiver when a new SMS arrives.
-     * Inserts into our DB; the API worker will pick it up separately.
+     * Inserts into our DB; the API worker will pick it up separately. The callback always runs, even
+     * if the insert fails, so the receiver can finish its broadcast.
      */
     public void insertIncoming(String address, String body, long date,
                                long systemSmsId, long threadId,
-                               Runnable onInserted) {
+                               IncomingCallback onStored) {
         ioExecutor.execute(() -> {
-            Message msg = new Message();
-            msg.address     = address;
-            msg.body        = body;
-            msg.date        = date;
-            msg.type        = Message.TYPE_INBOX;
-            msg.read        = false;
-            msg.systemSmsId = systemSmsId;
-            msg.threadId    = threadId;
-            msg.apiProcessed = false;
+            long newId = -1;
+            try {
+                Message msg = new Message();
+                msg.address     = address;
+                msg.body        = body;
+                msg.date        = date;
+                msg.type        = Message.TYPE_INBOX;
+                msg.read        = false;
+                msg.systemSmsId = systemSmsId;
+                msg.threadId    = threadId;
+                msg.apiProcessed = false;
 
-            long newId = messageDao.insert(msg);
+                newId = messageDao.insert(msg);
 
-            // Update or create conversation row
-            upsertConversation(threadId, address, body, date);
-
-            if (onInserted != null) onInserted.run();
+                // Update or create conversation row
+                upsertConversation(threadId, address, body, date);
+            } catch (RuntimeException e) {
+                Log.e(TAG, "Failed to store incoming SMS", e);
+            } finally {
+                if (onStored != null) onStored.onStored(newId);
+            }
         });
     }
 

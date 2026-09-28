@@ -41,6 +41,13 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric needs merged resources to run Android code on the JVM.
+            includeAndroidResources = true
+        }
+    }
+
     buildFeatures {
         viewBinding true
         buildConfig true
@@ -104,4 +111,9 @@ dependencies {
 
     // JSON parsing
     implementation 'org.json:json:20231013'
+
+    // Local unit tests (./gradlew testDebugUnitTest)
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.17'
+    testImplementation 'androidx.work:work-testing:2.10.0'
 }

@@ -47,4 +47,10 @@ public interface MessageDao {
 
     @Query("SELECT COUNT(*) FROM messages WHERE thread_id = :threadId AND read = 0")
     int getUnreadCount(long threadId);
+
+    /** Who sent incoming SMS since {@code since}, busiest first (for picking bank senders in Monarra). */
+    @Query("SELECT address AS sender, COUNT(*) AS count FROM messages "
+            + "WHERE type = 1 AND date >= :since AND address IS NOT NULL "
+            + "GROUP BY address ORDER BY count DESC LIMIT :limit")
+    List<SenderCount> incomingSenders(long since, int limit);
 }

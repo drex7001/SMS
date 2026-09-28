@@ -1,0 +1,75 @@
+{
+  "description": "Bodies and whether the built-in OTP deny drops them. Real transaction alerts with OTP disclaimers must get through.",
+  "cases": [
+    {
+      "body": "Your OTP is 482913. Do not share it with anyone.",
+      "deny": true,
+      "note": "keyword then code"
+    },
+    {
+      "body": "482913 is your OTP for login. Valid for 5 minutes.",
+      "deny": true,
+      "note": "code then keyword"
+    },
+    {
+      "body": "Dear customer, 918273 is the OTP for your transaction.",
+      "deny": true,
+      "note": "code, 'is the OTP'"
+    },
+    {
+      "body": "Use verification code 773311 to sign in.",
+      "deny": true,
+      "note": "verification code"
+    },
+    {
+      "body": "One-time password: 90817263 for your online banking login",
+      "deny": true,
+      "note": "8-digit code"
+    },
+    {
+      "body": "Security code: 443322",
+      "deny": true,
+      "note": "security code"
+    },
+    {
+      "body": "OTP 5521 for card ending 1234",
+      "deny": true,
+      "note": "4-digit code"
+    },
+    {
+      "body": "Your OTP for the transaction of LKR 5,000.00 at DARAZ is 123456. Never share it.",
+      "deny": true,
+      "note": "amount between keyword and code"
+    },
+    {
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER on 28/09/26. Avl Bal LKR 12,345.67. Never share your OTP with anyone. Call 0112 303 050",
+      "deny": false,
+      "note": "disclaimer, long gap"
+    },
+    {
+      "body": "Your A/C XX1234 credited LKR 125,000.00 SALARY. Bal: 12345.00. Do not share OTP. Call: 0112 303 050",
+      "deny": false,
+      "note": "disclaimer, phone number in groups"
+    },
+    {
+      "body": "Card ending 1234 used for LKR 2,300.00 at UBER. If not you, call 0112 448 448. We never ask for your OTP.",
+      "deny": false,
+      "note": "keyword at the end"
+    },
+    {
+      "body": "Payment of LKR 10,000.00 received. Ref 88213344. Thank you.",
+      "deny": false,
+      "note": "no keyword"
+    },
+    {
+      "body": "Your one-time password will never be requested by bank staff. Txn LKR 3,500.00 at PIZZA HUT.",
+      "deny": false,
+      "note": "keyword, amount, no code"
+    },
+    {
+      "body": "OTP verification is required for online transactions above LKR 50000",
+      "deny": false,
+      "note": "keyword, 'is', no code after it"
+    }
+  ]
+}

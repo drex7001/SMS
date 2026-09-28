@@ -10,6 +10,7 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 
 import com.personal.smsapp.data.local.SmsRepository;
+import com.personal.smsapp.monarra.MonarraFeed;
 import com.personal.smsapp.util.NotificationHelper;
 import com.personal.smsapp.worker.ApiSyncWorker;
 
@@ -20,6 +21,7 @@ import com.personal.smsapp.worker.ApiSyncWorker;
  *   1. Writing the message to the system SMS content provider.
  *   2. Resolving the correct thread_id via Telephony.Threads.
  *   3. Persisting the message in our own DB.
+ *   4. Handing financial SMS to Monarra (monarra/MonarraFeed), if it's connected.
  */
 public class SmsReceiver extends BroadcastReceiver {
 
@@ -91,11 +93,33 @@ public class SmsReceiver extends BroadcastReceiver {
         }
         final long finalSysId = sysId;
 
-        // ── 3. Persist in our DB and notify ────────────────────────────────
-        SmsRepository repo = SmsRepository.getInstance(context);
-        repo.insertIncoming(finalSender, finalBody, finalDate, finalSysId, finalThreadId, () -> {
-            NotificationHelper.showIncoming(context, finalSender, finalBody, finalThreadId);
-            ApiSyncWorker.enqueue(context);
-        });
+        // ── 3. Persist in our DB, hand to Monarra and notify ───────────────
+        // goAsync() keeps the process alive until the background writes have landed.
+        final int simSlot = simSlot(intent);
+        final PendingResult pending = goAsync();
+        try {
+            SmsRepository repo = SmsRepository.getInstance(context);
+            repo.insertIncoming(finalSender, finalBody, finalDate, finalSysId, finalThreadId, newId -> {
+                try {
+                    MonarraFeed.captureLive(context, finalSender, finalBody, finalDate, simSlot);
+                    NotificationHelper.showIncoming(context, finalSender, finalBody, finalThreadId);
+                    ApiSyncWorker.enqueue(context);
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "Post-receive work failed", e);
+                } finally {
+                    pending.finish();
+                }
+            });
+        } catch (RuntimeException e) {
+            pending.finish();
+            throw e;
+        }
+    }
+
+    /** The SIM slot the SMS arrived on, or -1. The extra's name varies by Android version and OEM. */
+    private static int simSlot(Intent intent) {
+        int slot = intent.getIntExtra("android.telephony.extra.SLOT_INDEX", -1);
+        if (slot < 0) slot = intent.getIntExtra("slot", -1);
+        return slot;
     }
 }

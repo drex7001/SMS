@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.personal.smsapp.R;
 import com.personal.smsapp.databinding.ActivitySettingsBinding;
+import com.personal.smsapp.monarra.BridgeStatus;
 import com.personal.smsapp.util.Prefs;
 import com.personal.smsapp.worker.ApiSyncWorker;
 
@@ -56,6 +57,20 @@ public class SettingsActivity extends AppCompatActivity {
         setupTestButton();
         setupWifiSection();
         setupFilterNav();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showMonarraStatus();
+    }
+
+    /** Settings → Monarra: whether financial SMS are reaching Monarra. */
+    private void showMonarraStatus() {
+        new Thread(() -> {
+            String text = BridgeStatus.read(getApplicationContext()).describe(System.currentTimeMillis());
+            runOnUiThread(() -> binding.tvMonarraStatus.setText(text));
+        }, "monarra-status").start();
     }
 
     private void loadSettings() {

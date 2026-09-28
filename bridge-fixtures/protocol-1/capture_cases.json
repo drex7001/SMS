@@ -1,0 +1,56 @@
+{
+  "description": "With these rules, which SMS the SMS app puts in the feed. Order: built-in OTP deny, sender, include, deny.",
+  "rules": {
+    "rules_version": 7,
+    "allowed_senders": [
+      "COMBANK",
+      "HNB"
+    ],
+    "include_filter": "(?i)\\b(debited|credited|withdrawn)\\b",
+    "deny_filter": "(?i)\\b(offer|promo)\\b"
+  },
+  "cases": [
+    {
+      "sender": "COMBANK",
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER.",
+      "captured": true,
+      "note": "allowed sender, include matches"
+    },
+    {
+      "sender": " combank ",
+      "body": "LKR 4,500.00 debited from A/C XX1234 at KEELLS SUPER.",
+      "captured": true,
+      "note": "sender is trimmed and upper-cased"
+    },
+    {
+      "sender": "HNB",
+      "body": "LKR 20,000.00 withdrawn at ATM HNB KOLLUPITIYA. Never share your OTP with anyone. Call 0112 462 462",
+      "captured": true,
+      "note": "OTP disclaimer is fine"
+    },
+    {
+      "sender": "COMBANK",
+      "body": "Your OTP is 482913. It was requested for a payment debited to your card.",
+      "captured": false,
+      "note": "built-in OTP deny wins over include"
+    },
+    {
+      "sender": "SAMPATH",
+      "body": "LKR 1,000.00 debited from A/C XX9999.",
+      "captured": false,
+      "note": "sender not allowed"
+    },
+    {
+      "sender": "HNB",
+      "body": "Your statement is ready.",
+      "captured": false,
+      "note": "include doesn't match"
+    },
+    {
+      "sender": "HNB",
+      "body": "Special offer! Get 10% back when LKR is credited to your card.",
+      "captured": false,
+      "note": "deny matches"
+    }
+  ]
+}
